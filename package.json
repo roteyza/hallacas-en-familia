@@ -1,0 +1,17 @@
+{
+  "name": "hallacas-en-familia",
+  "version": "1.0.0",
+  "description": "Un juego cooperativo móvil de decisiones, caos y supervivencia familiar.",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "socket.io": "^4.7.5"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.4"
+  }
+}

@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hallacas en Familia</title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <main class="app-shell">
+    <section class="brand">
+      <p class="eyebrow">Un juego cooperativo de decisiones, caos y supervivencia familiar.</p>
+      <h1>Hallacas en Familia</h1>
+      <p class="version-label">Hallacas en Familia v0.1 — Playtest 1</p>
+    </section>
+
+    <section id="message" class="message hidden" role="status" aria-live="polite"></section>
+
+    <section id="landing" class="screen">
+      <div class="panel">
+        <label for="playerName">Tu nombre</label>
+        <input id="playerName" maxlength="18" autocomplete="name" placeholder="Rodrigo">
+
+        <div class="action-stack">
+          <button id="createRoomBtn" class="primary">Crear sala</button>
+        </div>
+
+        <div class="join-box">
+          <label for="roomCodeInput">Código de sala</label>
+          <input id="roomCodeInput" inputmode="numeric" maxlength="4" placeholder="1234">
+          <button id="joinRoomBtn">Unirse a sala</button>
+        </div>
+      </div>
+    </section>
+
+    <section id="game" class="screen hidden">
+      <header class="room-header">
+        <div>
+          <span class="mini-label">Código de sala</span>
+          <strong id="roomCode">----</strong>
+        </div>
+        <div>
+          <span class="mini-label">Ronda</span>
+          <strong id="roundLabel">1</strong>
+        </div>
+      </header>
+
+      <section id="billBar" class="bill-bar hidden">
+        <button id="billToggleBtn" class="bill-button">💵 Tienen $100 — úsalo cuando quieras</button>
+        <div id="billPanel" class="bill-panel hidden">
+          <p>El primer uso válido cuenta para toda la familia.</p>
+          <div id="billOptions" class="bill-options"></div>
+        </div>
+      </section>
+
+      <section id="billMessage" class="message bill-message hidden"></section>
+
+      <section class="players-wrap">
+        <h2>Familia</h2>
+        <ul id="playersList" class="players-list"></ul>
+      </section>
+
+      <section id="stats" class="stats-grid"></section>
+
+      <section id="lobbyView" class="panel hidden">
+        <h2>La cocina se está armando</h2>
+        <p id="lobbyHint" class="muted"></p>
+        <button id="startGameBtn" class="primary hidden">Empezar hallacas</button>
+      </section>
+
+      <section id="votingView" class="panel scenario-panel hidden">
+        <p class="mini-label">Situación</p>
+        <h2 id="scenarioTitle"></h2>
+        <p id="scenarioDescription" class="scenario-text"></p>
+        <p class="rule-hint">Hablen, discutan y decidan rápido. La mayoría manda. Si hay empate, decide el destino... o la tía.</p>
+        <div id="choices" class="choices"></div>
+        <p id="voteNotice" class="muted"></p>
+        <div class="voted-box">
+          <span class="mini-label">Votos enviados</span>
+          <ul id="votedPlayers" class="voted-list"></ul>
+        </div>
+      </section>
+
+      <section id="resultView" class="panel hidden">
+        <p class="mini-label">Decisión familiar</p>
+        <h2 id="winningChoice"></h2>
+        <p id="consequence" class="scenario-text"></p>
+
+        <h3>Cambios por la decisión</h3>
+        <div id="effects" class="effects"></div>
+
+        <h3>Presión de la ronda</h3>
+        <div id="pressureEffects" class="effects"></div>
+
+        <p id="billWonNotice" class="bill-won hidden"></p>
+        <p id="resultTrend" class="trend"></p>
+        <p id="tieNotice" class="muted"></p>
+        <button id="nextRoundBtn" class="primary hidden">Siguiente ronda</button>
+      </section>
+
+      <section id="endedView" class="panel hidden">
+        <p class="mini-label">Hallacada terminada</p>
+        <h2 id="endedTitle"></h2>
+        <p id="endedReason" class="scenario-text"></p>
+        <div class="host-actions">
+          <button id="restartBtn" class="primary hidden">Volver a empezar</button>
+          <button id="backToLobbyBtn" class="hidden">Volver a la cocina</button>
+        </div>
+      </section>
+
+      <section class="log-wrap">
+        <h2>Últimos chismes</h2>
+        <ul id="gameLog" class="game-log"></ul>
+      </section>
+    </section>
+  </main>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="/client.js"></script>
+</body>
+</html>
