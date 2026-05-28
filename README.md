@@ -1,6 +1,6 @@
 # Hallacas en Familia
 
-**Versión actual:** Hallacas en Familia v0.3 — Playtest 3
+**Versión actual:** Hallacas en Familia v0.4 — Playtest 4
 
 **Hallacas en Familia** es un juego cooperativo móvil para jugar con amigos o familia desde el navegador. La familia intenta terminar las hallacas de Navidad mientras todo se complica: caos, discusiones, visitas, fallas de cocina y decisiones peligrosas.
 
@@ -105,11 +105,35 @@ El servidor aplica los efectos de la decisión, puede aplicar un evento sorpresa
 
 No hay límite de rondas. La hallacada termina solo cuando se gana o se pierde.
 
+## Dificultad
+
+La sala empieza en **Fácil**. Solo el anfitrión puede cambiar la dificultad antes de empezar la hallacada, y todos pueden ver la dificultad elegida en el lobby. Cuando la partida empieza, la dificultad queda bloqueada.
+
+**Fácil — familiar y más relajado**
+
+- Ingredientes: 75
+- Paciencia: 75
+- Caos: 15
+- Hallacas: 0
+- Sin presión automática por ronda.
+- Eventos sorpresa: 25% desde la ronda 2.
+- La Apuesta del Tío aparece en ronda 7.
+
+**Difícil — más caos, menos margen**
+
+- Ingredientes: 70
+- Paciencia: 70
+- Caos: 20
+- Hallacas: 0
+- Presión automática por ronda: Caos +3, Paciencia -1.
+- Eventos sorpresa: 25% desde la ronda 2.
+- La Apuesta del Tío aparece en ronda 7.
+
 ## Stats
 
-- **Ingredientes 🥩**: comida, hojas, masa, guiso, pabilo y materiales. Empieza en 75.
-- **Paciencia 😤**: estabilidad emocional de la familia. Empieza en 75.
-- **Caos 🔥**: desorden, estrés, antojos acumulados, interrupciones y locura general. Empieza en 15.
+- **Ingredientes 🥩**: comida, hojas, masa, guiso, pabilo y materiales. En Fácil empieza en 75; en Difícil empieza en 70.
+- **Paciencia 😤**: estabilidad emocional de la familia. En Fácil empieza en 75; en Difícil empieza en 70.
+- **Caos 🔥**: desorden, estrés, antojos acumulados, interrupciones y locura general. En Fácil empieza en 15; en Difícil empieza en 20.
 - **Hallacas 🫔**: progreso para terminar la producción. Empieza en 0.
 
 Todos los stats se mantienen entre 0 y 100.
@@ -145,6 +169,16 @@ El caos ahora viene de las decisiones de la familia y de los eventos sorpresa, n
 ## Eventos sorpresa
 
 Desde la ronda 2, hay 25% de probabilidad de que ocurra un evento sorpresa. Estos eventos son cortos, absurdos y familiares: pueden subir o bajar Caos, Paciencia, Ingredientes o Hallacas. Si ocurre uno, aparece separado en la pantalla de resultado y también entra en el log.
+
+## Colores de cambios de stats
+
+En la pantalla de resultado, los cambios usan colores por impacto para el equipo:
+
+- **Verde**: ayuda al equipo.
+- **Rojo**: perjudica al equipo.
+- **Gris**: neutral.
+
+Para Ingredientes, Paciencia y Hallacas, subir es bueno y bajar es malo. Para Caos es al revés: bajar Caos es bueno y subir Caos es malo.
 
 ## Billete de $100
 

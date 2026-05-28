@@ -11,7 +11,7 @@
     <section class="brand">
       <p class="eyebrow">Un juego cooperativo de decisiones, caos y supervivencia familiar.</p>
       <h1>Hallacas en Familia</h1>
-      <p class="version-label">Hallacas en Familia v0.3 — Playtest 3</p>
+      <p class="version-label">Hallacas en Familia v0.4 — Playtest 4</p>
     </section>
 
     <section id="message" class="message hidden" role="status" aria-live="polite"></section>
@@ -43,6 +43,10 @@
           <span class="mini-label">Ronda</span>
           <strong id="roundLabel">1</strong>
         </div>
+        <div>
+          <span class="mini-label">Dificultad</span>
+          <strong id="difficultyHeader">Fácil</strong>
+        </div>
       </header>
 
       <section id="billBar" class="bill-bar hidden">
@@ -65,6 +69,14 @@
 
       <section id="lobbyView" class="panel hidden">
         <h2>La cocina se está armando</h2>
+        <div class="difficulty-box">
+          <span class="mini-label">Dificultad</span>
+          <p id="difficultyStatus" class="difficulty-status"></p>
+          <div id="difficultyControls" class="difficulty-controls">
+            <button id="difficultyFacilBtn" type="button">Fácil — familiar y más relajado</button>
+            <button id="difficultyDificilBtn" type="button">Difícil — más caos, menos margen</button>
+          </div>
+        </div>
         <p id="lobbyHint" class="muted"></p>
         <button id="startGameBtn" class="primary hidden">Empezar hallacas</button>
       </section>
@@ -89,6 +101,11 @@
 
         <h3>Cambios por la decisión</h3>
         <div id="effects" class="effects"></div>
+
+        <section id="pressureWrap" class="pressure-wrap hidden">
+          <h3>Presión de la ronda</h3>
+          <div id="pressureEffects" class="effects"></div>
+        </section>
 
         <section id="surpriseWrap" class="surprise-wrap hidden">
           <h3>Evento sorpresa</h3>

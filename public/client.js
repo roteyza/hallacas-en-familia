@@ -25,6 +25,7 @@ const createRoomBtn = document.getElementById("createRoomBtn");
 const joinRoomBtn = document.getElementById("joinRoomBtn");
 const roomCode = document.getElementById("roomCode");
 const roundLabel = document.getElementById("roundLabel");
+const difficultyHeader = document.getElementById("difficultyHeader");
 const billBar = document.getElementById("billBar");
 const billToggleBtn = document.getElementById("billToggleBtn");
 const billPanel = document.getElementById("billPanel");
@@ -33,6 +34,10 @@ const billMessage = document.getElementById("billMessage");
 const playersList = document.getElementById("playersList");
 const stats = document.getElementById("stats");
 const lobbyHint = document.getElementById("lobbyHint");
+const difficultyStatus = document.getElementById("difficultyStatus");
+const difficultyControls = document.getElementById("difficultyControls");
+const difficultyFacilBtn = document.getElementById("difficultyFacilBtn");
+const difficultyDificilBtn = document.getElementById("difficultyDificilBtn");
 const startGameBtn = document.getElementById("startGameBtn");
 const scenarioTitle = document.getElementById("scenarioTitle");
 const scenarioDescription = document.getElementById("scenarioDescription");
@@ -42,6 +47,8 @@ const votedPlayers = document.getElementById("votedPlayers");
 const winningChoice = document.getElementById("winningChoice");
 const consequence = document.getElementById("consequence");
 const effects = document.getElementById("effects");
+const pressureWrap = document.getElementById("pressureWrap");
+const pressureEffects = document.getElementById("pressureEffects");
 const surpriseWrap = document.getElementById("surpriseWrap");
 const surpriseTitle = document.getElementById("surpriseTitle");
 const surpriseText = document.getElementById("surpriseText");
@@ -86,6 +93,14 @@ joinRoomBtn.addEventListener("click", () => {
 
 startGameBtn.addEventListener("click", () => {
   sendWithReply("startGame", null);
+});
+
+difficultyFacilBtn.addEventListener("click", () => {
+  sendWithReply("changeDifficulty", { difficulty: "facil" });
+});
+
+difficultyDificilBtn.addEventListener("click", () => {
+  sendWithReply("changeDifficulty", { difficulty: "dificil" });
 });
 
 nextRoundBtn.addEventListener("click", () => {
@@ -138,6 +153,7 @@ function render() {
   const { game } = state.room;
   roomCode.textContent = state.room.code;
   roundLabel.textContent = game.status === "lobby" ? "-" : game.round;
+  difficultyHeader.textContent = getDifficultyLabel(state.room.difficulty);
 
   renderBill();
   renderPlayers();
@@ -296,10 +312,21 @@ function renderView(status) {
 
 function renderLobby() {
   screens.lobby.classList.remove("hidden");
+  renderDifficulty();
   startGameBtn.classList.toggle("hidden", !isHost());
   lobbyHint.textContent = isHost()
     ? "Reúne a la familia y arranca cuando la cocina esté lista."
     : "Esperando que el anfitrión empiece las hallacas...";
+}
+
+function renderDifficulty() {
+  const selected = state.room.difficulty || "facil";
+  difficultyStatus.textContent = isHost()
+    ? `Elegida: ${getDifficultyLabel(selected)}`
+    : `Dificultad elegida por el anfitrión: ${getDifficultyLabel(selected)}`;
+  difficultyControls.classList.toggle("hidden", !isHost());
+  difficultyFacilBtn.classList.toggle("selected", selected === "facil");
+  difficultyDificilBtn.classList.toggle("selected", selected === "dificil");
 }
 
 function renderVoting() {
@@ -348,6 +375,7 @@ function renderResult() {
   winningChoice.textContent = result.winningText;
   consequence.textContent = result.consequence;
   renderEffects(result.effects, effects);
+  renderPressure(result.pressure);
   renderSurprise(result.surprise);
 
   if (result.billWon) {
@@ -369,10 +397,21 @@ function renderEffects(effectValues, target) {
 
   Object.entries(effectValues).forEach(([stat, change]) => {
     const item = document.createElement("div");
-    item.className = `effect ${change < 0 ? "negative" : ""}`;
+    item.className = `effect ${getEffectClass(stat, change)}`;
     item.innerHTML = `<span>${statLabel(stat)}</span><strong>${formatChange(change)}</strong>`;
     target.appendChild(item);
   });
+}
+
+function renderPressure(pressure) {
+  if (!pressure) {
+    pressureWrap.classList.add("hidden");
+    pressureEffects.innerHTML = "";
+    return;
+  }
+
+  pressureWrap.classList.remove("hidden");
+  renderEffects(pressure, pressureEffects);
 }
 
 function renderSurprise(surprise) {
@@ -443,6 +482,16 @@ function isDisasterTrend(effectValues, currentStats) {
     currentStats.caos >= 75 ||
     ((effectValues.caos || 0) > 12 && (effectValues.hallacas || 0) < 8)
   );
+}
+
+function getDifficultyLabel(difficulty) {
+  return difficulty === "dificil" ? "Difícil" : "Fácil";
+}
+
+function getEffectClass(stat, change) {
+  if (change === 0) return "effect-neutral";
+  const good = stat === "caos" ? change < 0 : change > 0;
+  return good ? "effect-good" : "effect-bad";
 }
 
 function isHost() {

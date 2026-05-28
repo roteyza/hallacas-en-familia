@@ -17,11 +17,27 @@ app.get("/health", (req, res) => {
   });
 });
 
-const STARTING_STATS = {
-  ingredientes: 75,
-  paciencia: 75,
-  caos: 15,
-  hallacas: 0
+const DIFFICULTY_SETTINGS = {
+  facil: {
+    label: "FÃ¡cil",
+    startingStats: {
+      ingredientes: 75,
+      paciencia: 75,
+      caos: 15,
+      hallacas: 0
+    },
+    pressure: null
+  },
+  dificil: {
+    label: "DifÃ­cil",
+    startingStats: {
+      ingredientes: 70,
+      paciencia: 70,
+      caos: 20,
+      hallacas: 0
+    },
+    pressure: { caos: 3, paciencia: -1 }
+  }
 };
 
 
@@ -1086,7 +1102,8 @@ io.on("connection", (socket) => {
       code,
       hostId: socket.id,
       players: [{ id: socket.id, name: playerName }],
-      game: createInitialGameState()
+      difficulty: "facil",
+      game: createInitialGameState("facil")
     };
 
     rooms.set(code, room);
@@ -1114,13 +1131,26 @@ io.on("connection", (socket) => {
     broadcastRoom(roomCode);
   });
 
+  socket.on("changeDifficulty", ({ difficulty }, reply) => {
+    const room = getSocketRoom(socket);
+    if (!room) return replyError(reply, "Sala no encontrada.");
+    if (room.hostId !== socket.id) return replyError(reply, "Solo el anfitriÃ³n puede cambiar la dificultad.");
+    if (room.game.status !== "lobby") return replyError(reply, "La dificultad queda bloqueada cuando empieza la hallacada.");
+    if (!DIFFICULTY_SETTINGS[difficulty]) return replyError(reply, "Esa dificultad no existe.");
+
+    room.difficulty = difficulty;
+    room.game = createInitialGameState(difficulty);
+    replyOk(reply);
+    broadcastRoom(room.code);
+  });
+
   socket.on("startGame", (reply) => {
     const room = getSocketRoom(socket);
     if (!room) return replyError(reply, "Sala no encontrada.");
     if (room.hostId !== socket.id) return replyError(reply, "Solo el anfitrión puede empezar las hallacas.");
     if (room.game.status !== "lobby") return replyError(reply, "La hallacada ya empezó.");
 
-    room.game = createInitialGameState();
+    room.game = createInitialGameState(room.difficulty);
     room.game.status = "voting";
     addLog(room.game, "La hallacada empezó.");
     room.game.currentScenario = selectScenario(room.game);
@@ -1206,7 +1236,7 @@ io.on("connection", (socket) => {
     if (!room) return replyError(reply, "Sala no encontrada.");
     if (room.hostId !== socket.id) return replyError(reply, "Solo el anfitrión puede volver a la cocina.");
 
-    room.game = createInitialGameState();
+    room.game = createInitialGameState(room.difficulty);
     replyOk(reply);
     broadcastRoom(room.code);
   });
@@ -1216,7 +1246,7 @@ io.on("connection", (socket) => {
     if (!room) return replyError(reply, "Sala no encontrada.");
     if (room.hostId !== socket.id) return replyError(reply, "Solo el anfitrión puede volver a empezar.");
 
-    room.game = createInitialGameState();
+    room.game = createInitialGameState(room.difficulty);
     room.game.status = "voting";
     addLog(room.game, "La hallacada empezó.");
     room.game.currentScenario = selectScenario(room.game);
@@ -1250,11 +1280,13 @@ io.on("connection", (socket) => {
   });
 });
 
-function createInitialGameState() {
+function createInitialGameState(difficulty = "facil") {
+  const settings = getDifficultySettings(difficulty);
   return {
     status: "lobby",
     round: 1,
-    stats: { ...STARTING_STATS },
+    difficulty,
+    stats: { ...settings.startingStats },
     currentScenario: null,
     usedScenarioIds: [],
     votes: {},
@@ -1314,6 +1346,11 @@ function resolveVote(room) {
     }
   }
 
+  const pressure = getDifficultySettings(room.game.difficulty).pressure;
+  if (pressure) {
+    applyEffects(room.game.stats, pressure);
+  }
+
   const surprise = maybeApplySurpriseEvent(room.game);
   clampStats(room.game.stats);
 
@@ -1328,6 +1365,10 @@ function resolveVote(room) {
     billWon,
     isSpecialBill: !!scenario.isSpecialBill
   };
+
+  if (pressure) {
+    room.game.result.pressure = { ...pressure };
+  }
 
   addLog(room.game, `La familia decidió: ${winningChoice.text}.`);
   if (surprise) {
@@ -1377,6 +1418,10 @@ function getEndedReason(stats) {
   return null;
 }
 
+function getDifficultySettings(difficulty) {
+  return DIFFICULTY_SETTINGS[difficulty] || DIFFICULTY_SETTINGS.facil;
+}
+
 function allPlayersVoted(room) {
   return room.players.length > 0 && room.players.every((player) => room.game.votes[player.id]);
 }
@@ -1391,10 +1436,13 @@ function sanitizeRoom(room) {
   return {
     code: room.code,
     hostId: room.hostId,
+    difficulty: room.difficulty,
+    difficultyLabel: getDifficultySettings(room.difficulty).label,
     players: room.players,
     game: {
       status: room.game.status,
       round: room.game.round,
+      difficulty: room.game.difficulty,
       stats: room.game.stats,
       currentScenario: room.game.currentScenario,
       votedPlayerIds: Object.keys(room.game.votes),
