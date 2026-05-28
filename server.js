@@ -24,10 +24,6 @@ const STARTING_STATS = {
   hallacas: 0
 };
 
-const ROUND_PRESSURE = {
-  caos: 6,
-  paciencia: -2
-};
 
 const WIN_HALLACAS = 100;
 
@@ -42,24 +38,24 @@ const specialBillScenario = {
       id: "organizar_pelea_de_gallos",
       text: "Organizar pelea de gallos",
       consequence: "El plan solo trajo gritos, plumas imaginarias y más caos. Del billete, ni rastro.",
-      winConsequence: "El plan fue un desastre, pero de alguna forma el tío apareció con un billete de $100. Nadie hizo preguntas.",
-      billChance: 0.5,
-      effects: { caos: 30 }
+      winConsequence: "El plan fue raro, ruidoso y sorprendentemente efectivo: el tío apareció con un billete de $100.",
+      billChance: 0.7,
+      effects: { caos: 10 }
     },
     {
       id: "vender_aceitunas",
       text: "Vender las aceitunas",
       consequence: "Se fueron las aceitunas, pero no llegó ningún billete. Ahora las hallacas tienen menos personalidad.",
       winConsequence: "Vendieron más aceitunas de las que debían, pero apareció el billete de $100. La familia celebra con sospecha.",
-      billChance: 0.35,
-      effects: { ingredientes: -20, paciencia: -5 }
+      billChance: 0.4,
+      effects: { ingredientes: -10, paciencia: -5 }
     },
     {
       id: "seguir_trabajando",
       text: "Seguir trabajando",
-      consequence: "La familia decide no meterse en inventos raros. Avanzan con las hallacas, pero la cocina se pone intensa.",
+      consequence: "La familia decide no meterse en inventos raros. La cocina se calma y la producción avanza.",
       billChance: 0,
-      effects: { caos: 15, hallacas: 12 }
+      effects: { caos: -10, hallacas: 10 }
     }
   ]
 };
@@ -1318,7 +1314,6 @@ function resolveVote(room) {
     }
   }
 
-  applyEffects(room.game.stats, ROUND_PRESSURE);
   const surprise = maybeApplySurpriseEvent(room.game);
   clampStats(room.game.stats);
 
@@ -1327,7 +1322,6 @@ function resolveVote(room) {
     winningText: winningChoice.text,
     consequence,
     effects: choiceEffects,
-    pressure: { ...ROUND_PRESSURE },
     surprise,
     voteCounts: counts,
     tieBroken: tiedChoiceIds.length > 1,
@@ -1336,7 +1330,6 @@ function resolveVote(room) {
   };
 
   addLog(room.game, `La familia decidió: ${winningChoice.text}.`);
-  addLog(room.game, "Se aplicó la presión de la ronda: Caos +6, Paciencia -2.");
   if (surprise) {
     addLog(room.game, `Evento sorpresa: ${surprise.title}.`);
   }

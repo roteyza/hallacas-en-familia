@@ -42,7 +42,6 @@ const votedPlayers = document.getElementById("votedPlayers");
 const winningChoice = document.getElementById("winningChoice");
 const consequence = document.getElementById("consequence");
 const effects = document.getElementById("effects");
-const pressureEffects = document.getElementById("pressureEffects");
 const surpriseWrap = document.getElementById("surpriseWrap");
 const surpriseTitle = document.getElementById("surpriseTitle");
 const surpriseText = document.getElementById("surpriseText");
@@ -349,7 +348,6 @@ function renderResult() {
   winningChoice.textContent = result.winningText;
   consequence.textContent = result.consequence;
   renderEffects(result.effects, effects);
-  renderEffects(result.pressure, pressureEffects);
   renderSurprise(result.surprise);
 
   if (result.billWon) {

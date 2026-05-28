@@ -1,6 +1,6 @@
 # Hallacas en Familia
 
-**Versión actual:** Hallacas en Familia v0.2 — Playtest 2
+**Versión actual:** Hallacas en Familia v0.3 — Playtest 3
 
 **Hallacas en Familia** es un juego cooperativo móvil para jugar con amigos o familia desde el navegador. La familia intenta terminar las hallacas de Navidad mientras todo se complica: caos, discusiones, visitas, fallas de cocina y decisiones peligrosas.
 
@@ -101,7 +101,7 @@ http://192.168.1.25:3000
 
 La familia ve una situación por ronda y vota entre tres decisiones. Cada jugador puede votar una sola vez. La opción con más votos gana. Si hay empate, el servidor elige al azar entre las opciones empatadas.
 
-El servidor aplica los efectos de la decisión, luego aplica la presión automática de la ronda, ajusta los stats entre 0 y 100, revisa victoria o derrota y manda el estado actualizado a todos.
+El servidor aplica los efectos de la decisión, puede aplicar un evento sorpresa desde la ronda 2, ajusta los stats entre 0 y 100, revisa victoria o derrota y manda el estado actualizado a todos.
 
 No hay límite de rondas. La hallacada termina solo cuando se gana o se pierde.
 
@@ -134,33 +134,29 @@ La familia pierde si:
 4. Cada jugador vota una vez.
 5. Se ve quién votó, pero no qué eligió.
 6. Cuando todos votan, gana la mayoría.
-7. El resultado muestra la decisión familiar, la consecuencia, los cambios por la decisión, la presión de la ronda y el estado actual.
+7. El resultado muestra la decisión familiar, la consecuencia, los cambios por la decisión, cualquier evento sorpresa y el estado actual.
 8. Si la partida no terminó, el anfitrión pasa a la siguiente ronda.
 
-## Presión automática
 
-Después de cada decisión, siempre se aplica esta presión:
+## Caos y ritmo de partida
 
-- **Caos 🔥 +6**
-- **Paciencia 😤 -2**
-
-Esto representa el paso del tiempo: la familia se cansa, se estresa y la casa se desordena aunque la decisión haya sido buena.
+El caos ahora viene de las decisiones de la familia y de los eventos sorpresa, no de una presión automática por ronda. Esto hace que cada partida dependa más de las decisiones y menos de una subida fija.
 
 ## Eventos sorpresa
 
-Desde la ronda 2, después de aplicar la presión automática, hay 25% de probabilidad de que ocurra un evento sorpresa. Estos eventos son cortos, absurdos y familiares: pueden subir o bajar Caos, Paciencia, Ingredientes o Hallacas. Si ocurre uno, aparece separado en la pantalla de resultado y también entra en el log.
+Desde la ronda 2, hay 25% de probabilidad de que ocurra un evento sorpresa. Estos eventos son cortos, absurdos y familiares: pueden subir o bajar Caos, Paciencia, Ingredientes o Hallacas. Si ocurre uno, aparece separado en la pantalla de resultado y también entra en el log.
 
 ## Billete de $100
 
 Una vez por partida puede aparecer una situación especial: **La Apuesta del Tío**.
 
-El servidor decide al empezar la partida la ronda 7. Cuando llega esa ronda, aparece la situación especial en lugar de una normal.
+El servidor muestra esta situación exactamente en la ronda 7, si la partida llega hasta allí. Aparece en lugar de una situación normal.
 
 La familia puede intentar conseguir un billete de $100:
 
-- **Organizar pelea de gallos**: sube mucho el caos y tiene 50% de probabilidad de conseguir el billete.
-- **Vender las aceitunas**: cuesta ingredientes y tiene 35% de probabilidad de conseguir el billete.
-- **Seguir trabajando**: no da billete, pero avanza la producción.
+- **Organizar pelea de gallos**: Caos +10 y tiene 70% de probabilidad de conseguir el billete.
+- **Vender las aceitunas**: Ingredientes -10, Paciencia -5 y tiene 40% de probabilidad de conseguir el billete.
+- **Seguir trabajando**: Caos -10, Hallacas +10 y no da billete.
 
 Si la familia consigue el billete, aparece para todos como una opción especial. Cualquier jugador puede usarlo una sola vez, sin votación.
 
