@@ -1198,37 +1198,11 @@ io.on("connection", (socket) => {
   });
 
   socket.on("useBill", ({ actionId }, reply) => {
-    const room = getSocketRoom(socket);
-    if (!room) return replyError(reply, "Sala no encontrada.");
-    if (!room.game.hasBill || room.game.billUsed) return replyError(reply, "El billete de $100 ya no está disponible.");
+    handleUseBill(socket, actionId, reply);
+  });
 
-    const action = billActions[actionId];
-    if (!action) return replyError(reply, "Esa opción del billete no existe.");
-
-    room.game.hasBill = false;
-    room.game.billUsed = true;
-    applyEffects(room.game.stats, action.effects);
-    clampStats(room.game.stats);
-
-    const message = action.message(socket.data.playerName);
-    room.game.billUseResult = {
-      playerName: socket.data.playerName,
-      actionId,
-      label: action.label,
-      effects: action.effects,
-      message
-    };
-    addLog(room.game, message);
-    addLog(room.game, "El billete de $100 fue usado.");
-
-    const endedReason = getEndedReason(room.game.stats);
-    if (endedReason) {
-      room.game.status = "ended";
-      room.game.endedReason = endedReason;
-    }
-
-    replyOk(reply);
-    broadcastRoom(room.code);
+  socket.on("useBillOption", ({ optionId }, reply) => {
+    handleUseBill(socket, optionId, reply);
   });
 
   socket.on("backToLobby", (reply) => {
@@ -1280,6 +1254,40 @@ io.on("connection", (socket) => {
   });
 });
 
+function handleUseBill(socket, actionId, reply) {
+  const room = getSocketRoom(socket);
+  if (!room) return replyError(reply, "Sala no encontrada.");
+  if (room.game.status === "ended") return replyError(reply, "La hallacada ya terminó.");
+  if (!room.game.hasBill || room.game.billUsed) return replyError(reply, "El billete ya fue usado.");
+
+  const action = billActions[actionId];
+  if (!action) return replyError(reply, "Esa opción del billete no existe.");
+
+  room.game.hasBill = false;
+  room.game.billUsed = true;
+  room.game.billUseOption = action.label;
+  applyEffects(room.game.stats, action.effects);
+  clampStats(room.game.stats);
+
+  const message = action.message(socket.data.playerName);
+  room.game.billUseResult = {
+    playerName: socket.data.playerName,
+    actionId,
+    label: action.label,
+    effects: { ...action.effects },
+    message
+  };
+  addLog(room.game, `${socket.data.playerName} usó el billete de $100 para ${action.label}.`);
+
+  const endedReason = getEndedReason(room.game.stats);
+  if (endedReason) {
+    endGame(room.game, endedReason);
+  }
+
+  replyOk(reply);
+  broadcastRoom(room.code);
+}
+
 function createInitialGameState(difficulty = "facil") {
   const settings = getDifficultySettings(difficulty);
   return {
@@ -1295,8 +1303,11 @@ function createInitialGameState(difficulty = "facil") {
     specialBillRound: 7,
     billScenarioShown: false,
     hasBill: false,
+    billWon: false,
     billUsed: false,
+    billUseOption: null,
     billUseResult: null,
+    finalScore: null,
     log: []
   };
 }
@@ -1341,6 +1352,8 @@ function resolveVote(room) {
     billWon = Math.random() < winningChoice.billChance;
     if (billWon) {
       room.game.hasBill = true;
+      room.game.billWon = true;
+      room.game.billUsed = false;
       consequence = winningChoice.winConsequence;
       addLog(room.game, "La familia consiguió el billete de $100.");
     }
@@ -1377,8 +1390,7 @@ function resolveVote(room) {
 
   const endedReason = getEndedReason(room.game.stats);
   if (endedReason) {
-    room.game.status = "ended";
-    room.game.endedReason = endedReason;
+    endGame(room.game, endedReason);
   } else {
     room.game.status = "result";
   }
@@ -1388,6 +1400,58 @@ function applyEffects(stats, effects) {
   Object.entries(effects).forEach(([stat, change]) => {
     stats[stat] += change;
   });
+}
+
+function endGame(game, endedReason) {
+  game.status = "ended";
+  game.endedReason = endedReason;
+  game.finalScore = calculateFinalScore(game, endedReason);
+}
+
+function calculateFinalScore(game, endedReason) {
+  const won = endedReason === "success";
+  const stats = game.stats;
+  const breakdown = [
+    { label: "Hallacas", points: stats.hallacas * 10 },
+    { label: "Ingredientes restantes", points: stats.ingredientes * 3 },
+    { label: "Paciencia restante", points: stats.paciencia * 3 },
+    { label: "Control de caos", points: (100 - stats.caos) * 3 }
+  ];
+
+  if (won) breakdown.push({ label: "Victoria", points: 500 });
+  if (won && game.difficulty === "dificil") breakdown.push({ label: "Difícil", points: 200 });
+  if (won && !game.billUsed) breakdown.push({ label: "Sin usar el billete", points: 150 });
+  if (stats.caos < 50) breakdown.push({ label: "Caos bajo", points: 100 });
+  if (stats.paciencia > 50) breakdown.push({ label: "Paciencia alta", points: 100 });
+  breakdown.push({ label: "Rondas", points: game.round * -50 });
+  if (!won) breakdown.push({ label: "Derrota", points: -150 });
+
+  const rawPoints = breakdown.reduce((total, item) => total + item.points, 0);
+  const points = Math.max(0, rawPoints);
+
+  return {
+    points,
+    category: getScoreCategory(points),
+    rounds: game.round,
+    difficulty: game.difficulty,
+    result: won ? "Victoria" : "Derrota",
+    billStatus: getBillStatus(game),
+    breakdown
+  };
+}
+
+function getScoreCategory(points) {
+  if (points >= 2000) return "Hallacada legendaria";
+  if (points >= 1500) return "Hallacada sabrosa";
+  if (points >= 1000) return "Hallacada decente";
+  if (points >= 500) return "Hallacada accidentada";
+  return "Hallacada en emergencia";
+}
+
+function getBillStatus(game) {
+  if (!game.billWon) return "No ganado";
+  if (game.billUsed) return "Usado";
+  return "Ganado pero no usado";
 }
 
 function clampStats(stats) {
@@ -1449,8 +1513,11 @@ function sanitizeRoom(room) {
       result: room.game.result,
       endedReason: room.game.endedReason,
       hasBill: room.game.hasBill,
+      billWon: room.game.billWon,
       billUsed: room.game.billUsed,
+      billUseOption: room.game.billUseOption,
       billUseResult: room.game.billUseResult,
+      finalScore: room.game.finalScore,
       log: room.game.log
     }
   };

@@ -226,6 +226,10 @@ h3 {
   border-left-color: #57a565;
 }
 
+.bill-message p {
+  margin-bottom: 10px;
+}
+
 .difficulty-box {
   border-top: 1px solid rgba(255, 248, 232, 0.22);
   border-bottom: 1px solid rgba(255, 248, 232, 0.22);
@@ -452,6 +456,58 @@ h3 {
   color: #111827;
 }
 
+.score-panel {
+  margin: 18px 0;
+  border: 2px solid #f3cf4f;
+  border-radius: 8px;
+  padding: 16px;
+  color: #2b1b08;
+  background: linear-gradient(180deg, #fff3c4, #f6df92);
+  box-shadow: var(--shadow);
+}
+
+.score-panel .mini-label {
+  color: rgba(43, 33, 23, 0.7);
+}
+
+.score-points {
+  display: block;
+  margin: 2px 0 6px;
+  font-size: 2.2rem;
+  line-height: 1;
+}
+
+.score-panel h3 {
+  margin-top: 12px;
+}
+
+.score-meta,
+.score-breakdown {
+  display: grid;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.score-meta div,
+.score-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  border-radius: 8px;
+  padding: 9px 10px;
+  background: rgba(255, 248, 232, 0.74);
+  font-weight: 800;
+}
+
+.score-meta span,
+.score-row span {
+  color: rgba(43, 33, 23, 0.72);
+}
+
+.score-negative strong {
+  color: #a80000;
+}
+
 .host-actions {
   display: grid;
   gap: 10px;
@@ -467,7 +523,7 @@ h3 {
   }
 
   .stats-grid {
-    grid-template-columns: repeat(5, minmax(0, 1fr));
+    grid-template-columns: repeat(4, minmax(0, 1fr));
   }
 
   .join-box {

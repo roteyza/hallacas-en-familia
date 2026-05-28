@@ -1,6 +1,6 @@
 {
   "name": "hallacas-en-familia",
-  "version": "0.4.1",
+  "version": "0.5.0",
   "description": "Un juego cooperativo móvil de decisiones, caos y supervivencia familiar.",
   "main": "server.js",
   "scripts": {

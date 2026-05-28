@@ -1,6 +1,6 @@
 # Hallacas en Familia
 
-**Versión actual:** Hallacas en Familia v0.4.1 — Colores semáforo
+**Versión actual:** Hallacas en Familia v0.5 — Score final
 
 **Hallacas en Familia** es un juego cooperativo móvil para jugar con amigos o familia desde el navegador. La familia intenta terminar las hallacas de Navidad mientras todo se complica: caos, discusiones, visitas, fallas de cocina y decisiones peligrosas.
 
@@ -201,6 +201,46 @@ Opciones del billete:
 - **Comprar más ingredientes**: Ingredientes +25.
 
 Para evitar accidentes, hay que tocar la opción dos veces. El primer uso válido cuenta, el servidor lo aplica, el billete desaparece y se revisa si la partida terminó.
+
+El estado del billete también cuenta para el score final:
+
+- **No ganado**: nunca apareció o no se ganó en La Apuesta del Tío.
+- **Ganado pero no usado**: la familia lo ganó, pero terminó la partida sin gastarlo.
+- **Usado**: alguien lo activó durante la partida.
+
+## Score final
+
+Cuando la hallacada termina, el servidor calcula un score final para que las familias puedan competir por la mejor partida.
+
+Puntos base:
+
+- Hallacas: `Hallacas x 10`.
+- Ingredientes restantes: `Ingredientes x 3`.
+- Paciencia restante: `Paciencia x 3`.
+- Control de caos: `(100 - Caos) x 3`.
+
+Bonos:
+
+- +500 si la familia gana.
+- +200 si gana en Difícil.
+- +150 si gana sin usar el billete de $100.
+- +100 si el Caos final queda por debajo de 50.
+- +100 si la Paciencia final queda por encima de 50.
+
+Penalizaciones:
+
+- -50 por cada ronda jugada.
+- -150 si la familia pierde.
+
+El score nunca baja de 0.
+
+Categorías:
+
+- 0-499: **Hallacada en emergencia**
+- 500-999: **Hallacada accidentada**
+- 1000-1499: **Hallacada decente**
+- 1500-1999: **Hallacada sabrosa**
+- 2000 o más: **Hallacada legendaria**
 
 ## Estructura del proyecto
 

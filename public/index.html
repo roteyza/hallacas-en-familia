@@ -11,7 +11,7 @@
     <section class="brand">
       <p class="eyebrow">Un juego cooperativo de decisiones, caos y supervivencia familiar.</p>
       <h1>Hallacas en Familia</h1>
-      <p class="version-label">Hallacas en Familia v0.4.1 — Colores semáforo</p>
+      <p class="version-label">Hallacas en Familia v0.5 — Score final</p>
     </section>
 
     <section id="message" class="message hidden" role="status" aria-live="polite"></section>
@@ -57,7 +57,10 @@
         </div>
       </section>
 
-      <section id="billMessage" class="message bill-message hidden"></section>
+      <section id="billMessage" class="message bill-message hidden">
+        <p id="billMessageText"></p>
+        <div id="billMessageEffects" class="effects"></div>
+      </section>
 
       <section class="players-wrap">
         <h2>Familia</h2>
@@ -124,6 +127,14 @@
         <p class="mini-label">Hallacada terminada</p>
         <h2 id="endedTitle"></h2>
         <p id="endedReason" class="scenario-text"></p>
+        <section id="scorePanel" class="score-panel hidden">
+          <p class="mini-label">Score final</p>
+          <strong id="scorePoints" class="score-points">0 puntos</strong>
+          <h3 id="scoreCategory"></h3>
+          <div id="scoreMeta" class="score-meta"></div>
+          <h3>Breakdown</h3>
+          <div id="scoreBreakdown" class="score-breakdown"></div>
+        </section>
         <div class="host-actions">
           <button id="restartBtn" class="primary hidden">Volver a empezar</button>
           <button id="backToLobbyBtn" class="hidden">Volver a la cocina</button>

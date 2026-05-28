@@ -31,6 +31,8 @@ const billToggleBtn = document.getElementById("billToggleBtn");
 const billPanel = document.getElementById("billPanel");
 const billOptions = document.getElementById("billOptions");
 const billMessage = document.getElementById("billMessage");
+const billMessageText = document.getElementById("billMessageText");
+const billMessageEffects = document.getElementById("billMessageEffects");
 const playersList = document.getElementById("playersList");
 const stats = document.getElementById("stats");
 const lobbyHint = document.getElementById("lobbyHint");
@@ -59,6 +61,11 @@ const tieNotice = document.getElementById("tieNotice");
 const nextRoundBtn = document.getElementById("nextRoundBtn");
 const endedTitle = document.getElementById("endedTitle");
 const endedReason = document.getElementById("endedReason");
+const scorePanel = document.getElementById("scorePanel");
+const scorePoints = document.getElementById("scorePoints");
+const scoreCategory = document.getElementById("scoreCategory");
+const scoreMeta = document.getElementById("scoreMeta");
+const scoreBreakdown = document.getElementById("scoreBreakdown");
 const restartBtn = document.getElementById("restartBtn");
 const backToLobbyBtn = document.getElementById("backToLobbyBtn");
 const gameLog = document.getElementById("gameLog");
@@ -174,10 +181,12 @@ function renderBill() {
   }
 
   if (game.billUseResult) {
-    billMessage.textContent = game.billUseResult.message;
+    billMessageText.textContent = `El billete de $100 fue usado: ${game.billUseResult.label}.`;
+    renderEffects(game.billUseResult.effects, billMessageEffects);
     billMessage.classList.remove("hidden");
   } else {
-    billMessage.textContent = "";
+    billMessageText.textContent = "";
+    billMessageEffects.innerHTML = "";
     billMessage.classList.add("hidden");
   }
 }
@@ -219,7 +228,7 @@ function handleBillAction(actionId) {
   }
 
   window.clearTimeout(state.confirmTimer);
-  sendWithReply("useBill", { actionId }, () => {
+  sendWithReply("useBillOption", { optionId: actionId }, () => {
     resetBillConfirmation();
     billPanel.classList.add("hidden");
   });
@@ -436,8 +445,36 @@ function renderEnded() {
   screens.ended.classList.remove("hidden");
   endedTitle.textContent = success ? "¡Navidad salvada!" : "La hallacada no sobrevivió.";
   endedReason.textContent = getEndedMessage(reason);
+  renderFinalScore(state.room.game.finalScore);
   restartBtn.classList.toggle("hidden", !isHost());
   backToLobbyBtn.classList.toggle("hidden", !isHost());
+}
+
+function renderFinalScore(finalScore) {
+  if (!finalScore) {
+    scorePanel.classList.add("hidden");
+    scoreBreakdown.innerHTML = "";
+    scoreMeta.innerHTML = "";
+    return;
+  }
+
+  scorePanel.classList.remove("hidden");
+  scorePoints.textContent = `${finalScore.points.toLocaleString("es-VE")} puntos`;
+  scoreCategory.textContent = finalScore.category;
+  scoreMeta.innerHTML = `
+    <div><span>Rondas jugadas</span><strong>${finalScore.rounds}</strong></div>
+    <div><span>Dificultad</span><strong>${getDifficultyLabel(finalScore.difficulty)}</strong></div>
+    <div><span>Resultado</span><strong>${finalScore.result}</strong></div>
+    <div><span>Billete de $100</span><strong>${finalScore.billStatus}</strong></div>
+  `;
+
+  scoreBreakdown.innerHTML = "";
+  finalScore.breakdown.forEach((item) => {
+    const row = document.createElement("div");
+    row.className = `score-row ${item.points < 0 ? "score-negative" : ""}`;
+    row.innerHTML = `<span>${item.label}</span><strong>${formatScore(item.points)}</strong>`;
+    scoreBreakdown.appendChild(row);
+  });
 }
 
 function getEndedMessage(reason) {
@@ -529,6 +566,10 @@ function getStatMood(stat, value) {
 }
 
 function formatChange(value) {
+  return value > 0 ? `+${value}` : String(value);
+}
+
+function formatScore(value) {
   return value > 0 ? `+${value}` : String(value);
 }
 
