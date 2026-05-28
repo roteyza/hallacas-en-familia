@@ -1,6 +1,6 @@
 # Hallacas en Familia
 
-**Versión actual:** Hallacas en Familia v0.4 — Playtest 4
+**Versión actual:** Hallacas en Familia v0.4.1 — Colores semáforo
 
 **Hallacas en Familia** es un juego cooperativo móvil para jugar con amigos o familia desde el navegador. La familia intenta terminar las hallacas de Navidad mientras todo se complica: caos, discusiones, visitas, fallas de cocina y decisiones peligrosas.
 
