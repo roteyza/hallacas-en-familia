@@ -1,8 +1,8 @@
 # Hallacas en Familia
 
-**Versión actual:** Hallacas en Familia v0.1 — Playtest 1
+**Versión actual:** Hallacas en Familia v0.2 — Playtest 2
 
-**Hallacas en Familia** es un juego cooperativo móvil para jugar con amigos o familia desde el navegador. La familia intenta terminar las hallacas de Navidad mientras todo se complica: hambre, caos, discusiones, visitas, fallas de cocina y decisiones peligrosas.
+**Hallacas en Familia** es un juego cooperativo móvil para jugar con amigos o familia desde el navegador. La familia intenta terminar las hallacas de Navidad mientras todo se complica: caos, discusiones, visitas, fallas de cocina y decisiones peligrosas.
 
 Subtítulo: **Un juego cooperativo de decisiones, caos y supervivencia familiar.**
 
@@ -22,6 +22,12 @@ Luego abre:
 
 ```text
 http://localhost:3000
+```
+
+URL desplegada actual:
+
+```text
+https://hallacas-en-familia.onrender.com
 ```
 
 Para desarrollo:
@@ -101,10 +107,9 @@ No hay límite de rondas. La hallacada termina solo cuando se gana o se pierde.
 
 ## Stats
 
-- **Ingredientes 🥩**: comida, hojas, masa, guiso, pabilo y materiales. Empieza en 80.
-- **Paciencia 😤**: estabilidad emocional de la familia. Empieza en 80.
-- **Hambre 🍕**: qué tan cerca está la familia de abandonar todo para comer. Empieza en 0.
-- **Caos 🔥**: desorden, gritos, accidentes y problemas en la casa. Empieza en 0.
+- **Ingredientes 🥩**: comida, hojas, masa, guiso, pabilo y materiales. Empieza en 75.
+- **Paciencia 😤**: estabilidad emocional de la familia. Empieza en 75.
+- **Caos 🔥**: desorden, estrés, antojos acumulados, interrupciones y locura general. Empieza en 15.
 - **Hallacas 🫔**: progreso para terminar la producción. Empieza en 0.
 
 Todos los stats se mantienen entre 0 y 100.
@@ -119,7 +124,6 @@ La familia pierde si:
 
 - **Ingredientes 🥩** llega a 0.
 - **Paciencia 😤** llega a 0.
-- **Hambre 🍕** llega a 100.
 - **Caos 🔥** llega a 100.
 
 ## Cómo funcionan las rondas
@@ -137,16 +141,20 @@ La familia pierde si:
 
 Después de cada decisión, siempre se aplica esta presión:
 
-- **Hambre 🍕 +2**
-- **Caos 🔥 +1**
+- **Caos 🔥 +6**
+- **Paciencia 😤 -2**
 
-Esto representa el paso del tiempo: la familia se cansa, tiene hambre y la casa se desordena aunque la decisión haya sido buena.
+Esto representa el paso del tiempo: la familia se cansa, se estresa y la casa se desordena aunque la decisión haya sido buena.
+
+## Eventos sorpresa
+
+Desde la ronda 2, después de aplicar la presión automática, hay 25% de probabilidad de que ocurra un evento sorpresa. Estos eventos son cortos, absurdos y familiares: pueden subir o bajar Caos, Paciencia, Ingredientes o Hallacas. Si ocurre uno, aparece separado en la pantalla de resultado y también entra en el log.
 
 ## Billete de $100
 
 Una vez por partida puede aparecer una situación especial: **La Apuesta del Tío**.
 
-El servidor decide al empezar la partida una ronda aleatoria entre la 3 y la 8. Cuando llega esa ronda, aparece la situación especial en lugar de una normal.
+El servidor decide al empezar la partida la ronda 7. Cuando llega esa ronda, aparece la situación especial en lugar de una normal.
 
 La familia puede intentar conseguir un billete de $100:
 
@@ -159,8 +167,8 @@ Si la familia consigue el billete, aparece para todos como una opción especial.
 Opciones del billete:
 
 - **Calmar a la policía**: Caos -40.
-- **Pedir pizza**: Hambre -30.
-- **Comprar más ingredientes**: Ingredientes +20.
+- **Pedir pizza para distraer a todos**: Caos -30, Paciencia +8.
+- **Comprar más ingredientes**: Ingredientes +25.
 
 Para evitar accidentes, hay que tocar la opción dos veces. El primer uso válido cuenta, el servidor lo aplica, el billete desaparece y se revisa si la partida terminó.
 

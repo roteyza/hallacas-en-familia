@@ -11,7 +11,7 @@
     <section class="brand">
       <p class="eyebrow">Un juego cooperativo de decisiones, caos y supervivencia familiar.</p>
       <h1>Hallacas en Familia</h1>
-      <p class="version-label">Hallacas en Familia v0.1 — Playtest 1</p>
+      <p class="version-label">Hallacas en Familia v0.2 — Playtest 2</p>
     </section>
 
     <section id="message" class="message hidden" role="status" aria-live="polite"></section>
@@ -60,6 +60,7 @@
         <ul id="playersList" class="players-list"></ul>
       </section>
 
+      <h2 class="stats-heading">Estado actual</h2>
       <section id="stats" class="stats-grid"></section>
 
       <section id="lobbyView" class="panel hidden">
@@ -91,6 +92,13 @@
 
         <h3>Presión de la ronda</h3>
         <div id="pressureEffects" class="effects"></div>
+
+        <section id="surpriseWrap" class="surprise-wrap hidden">
+          <h3>Evento sorpresa</h3>
+          <p id="surpriseTitle" class="surprise-title"></p>
+          <p id="surpriseText" class="scenario-text"></p>
+          <div id="surpriseEffects" class="effects"></div>
+        </section>
 
         <p id="billWonNotice" class="bill-won hidden"></p>
         <p id="resultTrend" class="trend"></p>

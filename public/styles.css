@@ -265,6 +265,11 @@ h3 {
   color: var(--masa);
 }
 
+.stats-heading {
+  margin: 0 0 8px;
+  font-size: 1rem;
+}
+
 .stats-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -290,6 +295,35 @@ h3 {
   display: block;
   margin-top: 4px;
   font-size: 1.5rem;
+}
+
+.stat-card small {
+  display: block;
+  margin-top: 6px;
+  font-weight: 800;
+}
+
+.stat-bar {
+  height: 8px;
+  margin-top: 8px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: rgba(43, 33, 23, 0.18);
+}
+
+.stat-bar > div {
+  height: 100%;
+  border-radius: inherit;
+  background: var(--leaf);
+}
+
+.stat-card.warning .stat-bar > div,
+.stat-card.neutral .stat-bar > div {
+  background: var(--masa);
+}
+
+.stat-card.critical .stat-bar > div {
+  background: var(--red);
 }
 
 .scenario-panel {
@@ -323,6 +357,18 @@ h3 {
 
 .bill-won {
   background: #f3cf4f;
+}
+
+.surprise-wrap {
+  border-top: 1px solid rgba(255, 248, 232, 0.22);
+  margin-top: 12px;
+  padding-top: 12px;
+}
+
+.surprise-title {
+  margin-bottom: 6px;
+  color: var(--masa);
+  font-weight: 800;
 }
 
 .danger-trend {

@@ -43,6 +43,10 @@ const winningChoice = document.getElementById("winningChoice");
 const consequence = document.getElementById("consequence");
 const effects = document.getElementById("effects");
 const pressureEffects = document.getElementById("pressureEffects");
+const surpriseWrap = document.getElementById("surpriseWrap");
+const surpriseTitle = document.getElementById("surpriseTitle");
+const surpriseText = document.getElementById("surpriseText");
+const surpriseEffects = document.getElementById("surpriseEffects");
 const billWonNotice = document.getElementById("billWonNotice");
 const resultTrend = document.getElementById("resultTrend");
 const tieNotice = document.getElementById("tieNotice");
@@ -55,14 +59,14 @@ const gameLog = document.getElementById("gameLog");
 
 const billActionLabels = {
   calmar_policia: "Calmar a la policía",
-  pedir_pizza: "Pedir pizza",
+  pedir_pizza: "Pedir pizza para distraer a todos",
   comprar_ingredientes: "Comprar más ingredientes"
 };
 
 const billActionEffects = {
   calmar_policia: { caos: -40 },
-  pedir_pizza: { hambre: -30 },
-  comprar_ingredientes: { ingredientes: 20 }
+  pedir_pizza: { caos: -30, paciencia: 8 },
+  comprar_ingredientes: { ingredientes: 25 }
 };
 
 createRoomBtn.addEventListener("click", () => {
@@ -243,7 +247,6 @@ function renderStats(values) {
   const statLabels = [
     ["ingredientes", "Ingredientes 🥩"],
     ["paciencia", "Paciencia 😤"],
-    ["hambre", "Hambre 🍕"],
     ["caos", "Caos 🔥"],
     ["hallacas", "Hallacas 🫔"]
   ];
@@ -251,8 +254,14 @@ function renderStats(values) {
   stats.innerHTML = "";
   statLabels.forEach(([key, label]) => {
     const card = document.createElement("article");
-    card.className = "stat-card";
-    card.innerHTML = `<span>${label}</span><strong>${values[key]}</strong>`;
+    const mood = getStatMood(key, values[key]);
+    card.className = `stat-card ${mood.className}`;
+    card.innerHTML = `
+      <span>${label}</span>
+      <strong>${values[key]}</strong>
+      <div class="stat-bar" aria-hidden="true"><div style="width: ${values[key]}%"></div></div>
+      <small>${mood.emoji} ${mood.label}</small>
+    `;
     stats.appendChild(card);
   });
 }
@@ -341,6 +350,7 @@ function renderResult() {
   consequence.textContent = result.consequence;
   renderEffects(result.effects, effects);
   renderEffects(result.pressure, pressureEffects);
+  renderSurprise(result.surprise);
 
   if (result.billWon) {
     billWonNotice.textContent = "💵 ¡La familia consiguió el billete de $100!";
@@ -367,6 +377,21 @@ function renderEffects(effectValues, target) {
   });
 }
 
+function renderSurprise(surprise) {
+  if (!surprise) {
+    surpriseWrap.classList.add("hidden");
+    surpriseTitle.textContent = "";
+    surpriseText.textContent = "";
+    surpriseEffects.innerHTML = "";
+    return;
+  }
+
+  surpriseWrap.classList.remove("hidden");
+  surpriseTitle.textContent = surprise.title;
+  surpriseText.textContent = surprise.text;
+  renderEffects(surprise.effects, surpriseEffects);
+}
+
 function renderEnded() {
   const { endedReason: reason } = state.room.game;
   const success = reason === "success";
@@ -380,11 +405,10 @@ function renderEnded() {
 
 function getEndedMessage(reason) {
   const messages = {
-    success: "¡Lo lograron! Entre gritos, risas, hambre y hojas de plátano por todos lados, la familia terminó las hallacas. La Navidad está salvada.",
+    success: "¡Lo lograron! Entre gritos, risas, masa pegada y hojas por todos lados, la familia terminó las hallacas. La Navidad está salvada.",
     ingredientes: "Se acabaron los ingredientes. Sin guiso, sin hojas y sin forma de resolver, la familia acepta la derrota navideña.",
     paciencia: "La paciencia llegó a cero. La discusión se salió de control y la producción de hallacas quedó oficialmente suspendida.",
-    hambre: "El hambre ganó. La familia abandonó la mesa de trabajo y empezó a comerse todo lo que quedaba.",
-    caos: "El caos tomó la casa. Nadie sabe dónde está la masa, el guiso ni quién tenía la responsabilidad de apagar la hornilla."
+    caos: "El caos tomó la casa. Nadie sabe dónde está la masa, el guiso, las hojas ni quién dejó la hornilla prendida."
   };
 
   return messages[reason] || "La hallacada no pudo continuar.";
@@ -396,33 +420,28 @@ function getResultTrend(effectValues, currentStats) {
   }
 
   if (currentStats.caos >= 75) {
-    return "La producción avanza, pero la casa está al borde del colapso.";
-  }
-
-  if (currentStats.hambre >= 75) {
-    return "La familia todavía tiene chance, pero el hambre está subiendo demasiado.";
+    return "El caos está subiendo. Esto ya parece diciembre en modo supervivencia.";
   }
 
   if (currentStats.ingredientes <= 25 || currentStats.paciencia <= 25) {
-    return "Esto ya parece diciembre en modo supervivencia.";
+    return "La cosa se está poniendo seria. O amarran rápido o se acaba la paciencia.";
   }
 
   if ((effectValues.hallacas || 0) >= 10) {
-    return "Van bien, pero no se confíen: una hallaca mal amarrada puede cambiarlo todo.";
+    return "Van bien, pero no se confíen: una tía estresada puede acabar con todo.";
   }
 
-  if ((effectValues.caos || 0) > 10 || (effectValues.hambre || 0) > 10) {
-    return "Avanzaron, sí, pero la cocina está cobrando intereses.";
+  if ((effectValues.caos || 0) > 10) {
+    return "La producción avanza, pero la casa está agarrando candela.";
   }
 
-  return "La familia sigue en carrera. Todavía hay chance de salvar la Navidad.";
+  return "Todavía hay chance, pero la cocina está al borde del colapso.";
 }
 
 function isDisasterTrend(effectValues, currentStats) {
   return (
     currentStats.ingredientes <= 25 ||
     currentStats.paciencia <= 25 ||
-    currentStats.hambre >= 75 ||
     currentStats.caos >= 75 ||
     ((effectValues.caos || 0) > 12 && (effectValues.hallacas || 0) < 8)
   );
@@ -436,12 +455,30 @@ function statLabel(value) {
   const labels = {
     ingredientes: "Ingredientes 🥩",
     paciencia: "Paciencia 😤",
-    hambre: "Hambre 🍕",
     caos: "Caos 🔥",
     hallacas: "Hallacas 🫔"
   };
 
   return labels[value] || value;
+}
+
+function getStatMood(stat, value) {
+  if (stat === "hallacas") {
+    if (value >= 100) return { label: "¡Listas!", emoji: "🫔", className: "good" };
+    if (value >= 80) return { label: "Casi listas", emoji: "🫔", className: "good" };
+    if (value >= 40) return { label: "Avanzando", emoji: "🫔", className: "warning" };
+    return { label: "Empezando", emoji: "🫔", className: "neutral" };
+  }
+
+  if (stat === "caos") {
+    if (value <= 34) return { label: "Controlado", emoji: "😄", className: "good" };
+    if (value <= 69) return { label: "Subiendo", emoji: "😐", className: "warning" };
+    return { label: "Desastre", emoji: "😰", className: "critical" };
+  }
+
+  if (value >= 70) return { label: "Bien", emoji: "😄", className: "good" };
+  if (value >= 35) return { label: "Cuidado", emoji: "😐", className: "warning" };
+  return { label: "Crítico", emoji: "😰", className: "critical" };
 }
 
 function formatChange(value) {

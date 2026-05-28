@@ -18,16 +18,15 @@ app.get("/health", (req, res) => {
 });
 
 const STARTING_STATS = {
-  ingredientes: 80,
-  paciencia: 80,
-  hambre: 0,
-  caos: 0,
+  ingredientes: 75,
+  paciencia: 75,
+  caos: 15,
   hallacas: 0
 };
 
 const ROUND_PRESSURE = {
-  hambre: 2,
-  caos: 1
+  caos: 6,
+  paciencia: -2
 };
 
 const WIN_HALLACAS = 100;
@@ -53,14 +52,14 @@ const specialBillScenario = {
       consequence: "Se fueron las aceitunas, pero no llegó ningún billete. Ahora las hallacas tienen menos personalidad.",
       winConsequence: "Vendieron más aceitunas de las que debían, pero apareció el billete de $100. La familia celebra con sospecha.",
       billChance: 0.35,
-      effects: { ingredientes: -20 }
+      effects: { ingredientes: -20, paciencia: -5 }
     },
     {
       id: "seguir_trabajando",
       text: "Seguir trabajando",
-      consequence: "La familia decide no meterse en inventos raros. Avanzan con las hallacas, pero el hambre empieza a ponerse seria.",
+      consequence: "La familia decide no meterse en inventos raros. Avanzan con las hallacas, pero la cocina se pone intensa.",
       billChance: 0,
-      effects: { hambre: 15, hallacas: 8 }
+      effects: { caos: 15, hallacas: 12 }
     }
   ]
 };
@@ -80,8 +79,8 @@ const scenarios = [
       {
         id: "bajar_el_fuego",
         text: "Bajar el fuego y esperar",
-        consequence: "El guiso se salva, pero la producción se pone lenta y el hambre sube.",
-        effects: { hallacas: 4, hambre: 10, caos: -4 }
+        consequence: "El guiso se salva, pero la producción se pone lenta y la presión sube.",
+        effects: { hallacas: 4, caos: 6 }
       },
       {
         id: "hacer_guiso_nuevo",
@@ -106,13 +105,13 @@ const scenarios = [
         id: "prender_velas",
         text: "Prender velas",
         consequence: "La luz mejora el ánimo, aunque se pierde tiempo organizando todo.",
-        effects: { hallacas: 4, paciencia: 8, hambre: 8 }
+        effects: { hallacas: 4, paciencia: 8, caos: 8 }
       },
       {
         id: "esperar_que_vuelva",
         text: "Esperar que vuelva",
-        consequence: "Nadie se equivoca con la receta, pero el hambre empieza a mandar.",
-        effects: { caos: -6, hambre: 14, hallacas: 2 }
+        consequence: "Nadie se equivoca con la receta, pero la impaciencia empieza a mandar.",
+        effects: { caos: 8, hallacas: 2 }
       }
     ]
   },
@@ -137,7 +136,7 @@ const scenarios = [
         id: "encerrar_perro",
         text: "Encerrar al perro",
         consequence: "El peligro canino queda controlado, pero todos pierden tiempo.",
-        effects: { caos: -10, hambre: 8, hallacas: 3 }
+        effects: { caos: -2, hallacas: 3 }
       }
     ]
   },
@@ -156,7 +155,7 @@ const scenarios = [
         id: "negociar_con_ella",
         text: "Negociar con ella",
         consequence: "Acepta supervisar sin gritar tanto, aunque el ritmo baja.",
-        effects: { hallacas: 5, paciencia: 8, hambre: 8 }
+        effects: { hallacas: 5, paciencia: 8, caos: 8 }
       },
       {
         id: "distraerla_con_cafe",
@@ -206,7 +205,7 @@ const scenarios = [
         id: "pedir_al_vecino",
         text: "Pedir al vecino",
         consequence: "El vecino presta pabilo, pero se queda conversando demasiado.",
-        effects: { hallacas: 6, hambre: 8, paciencia: -4 }
+        effects: { hallacas: 6, caos: 8, paciencia: -4 }
       },
       {
         id: "comprar_rapido",
@@ -231,7 +230,7 @@ const scenarios = [
         id: "hacer_equipo_de_lavado",
         text: "Armar equipo",
         consequence: "La familia se coordina mejor, pero la producción se atrasa.",
-        effects: { hallacas: 5, paciencia: 8, hambre: 8 }
+        effects: { hallacas: 5, paciencia: 8, caos: 8 }
       },
       {
         id: "usar_las_mejores",
@@ -256,13 +255,13 @@ const scenarios = [
         id: "limpiar_y_rehacer",
         text: "Limpiar y rehacer",
         consequence: "La cocina se recupera, pero se pierden ingredientes y tiempo.",
-        effects: { ingredientes: -12, hambre: 8, hallacas: 5 }
+        effects: { ingredientes: -12, caos: 8, hallacas: 5 }
       },
       {
         id: "darle_tarea_segura",
         text: "Darle tarea segura",
         consequence: "El niño ayuda contando hojas, pero alguien debe supervisarlo.",
-        effects: { paciencia: 8, hallacas: 4, hambre: 6 }
+        effects: { paciencia: 8, hallacas: 4, caos: 6 }
       }
     ]
   },
@@ -280,8 +279,8 @@ const scenarios = [
       {
         id: "quitar_pasas",
         text: "Quitar pasas",
-        consequence: "Corrigen la receta, pero todos pierden tiempo y hambre.",
-        effects: { hallacas: 4, hambre: 10, caos: -4 }
+        consequence: "Corrigen la receta, pero todos pierden tiempo y calma.",
+        effects: { hallacas: 4, caos: 6 }
       },
       {
         id: "hacer_mitad_y_mitad",
@@ -300,7 +299,7 @@ const scenarios = [
         id: "escuchar_con_carino",
         text: "Escuchar con cariño",
         consequence: "La familia se enternece, pero la mesa queda parada.",
-        effects: { paciencia: 12, hambre: 12, hallacas: 2 }
+        effects: { paciencia: 12, caos: 12, hallacas: 2 }
       },
       {
         id: "trabajar_mientras_habla",
@@ -324,20 +323,20 @@ const scenarios = [
       {
         id: "seguir_sin_comer",
         text: "Seguir sin comer",
-        consequence: "La familia avanza, pero el hambre se pone peligrosa.",
-        effects: { hallacas: 10, hambre: 18, paciencia: -8 }
+        consequence: "La familia avanza, pero la ansiedad se pone peligrosa.",
+        effects: { hallacas: 10, caos: 18, paciencia: -8 }
       },
       {
         id: "picar_algo",
         text: "Picar algo",
-        consequence: "Baja el hambre, pero se gastan ingredientes que eran para la receta.",
-        effects: { hambre: -12, ingredientes: -12, hallacas: 4 }
+        consequence: "Baja la tensión, pero se gastan ingredientes que eran para la receta.",
+        effects: { caos: -12, ingredientes: -12, hallacas: 4 }
       },
       {
         id: "mandar_a_buscar",
         text: "Mandar a buscar",
         consequence: "Alguien sale a resolver, pero falta un par de manos.",
-        effects: { hambre: -6, caos: 6, hallacas: 5 }
+        effects: { caos: 0, hallacas: 5 }
       }
     ]
   },
@@ -350,7 +349,7 @@ const scenarios = [
         id: "cocinar_por_tandas",
         text: "Cocinar por tandas",
         consequence: "Sale mejor controlado, pero la noche se alarga.",
-        effects: { hallacas: 6, hambre: 12, caos: -4 }
+        effects: { hallacas: 6, caos: 8 }
       },
       {
         id: "llenarla_hasta_arriba",
@@ -387,7 +386,7 @@ const scenarios = [
         id: "turnarse",
         text: "Turnarse",
         consequence: "La paz se mantiene, pero el ritmo baja.",
-        effects: { hallacas: 5, paciencia: 10, hambre: 8 }
+        effects: { hallacas: 5, paciencia: 10, caos: 8 }
       }
     ]
   },
@@ -406,7 +405,7 @@ const scenarios = [
         id: "responder_todo",
         text: "Responder todo",
         consequence: "Baja el drama digital, pero la mesa se enfría.",
-        effects: { paciencia: 8, hambre: 10, hallacas: 3 }
+        effects: { paciencia: 8, caos: 10, hallacas: 3 }
       },
       {
         id: "mandar_foto_avance",
@@ -437,7 +436,7 @@ const scenarios = [
         id: "poner_playlist_suave",
         text: "Playlist suave",
         consequence: "El ambiente mejora, pero alguien se pone sentimental.",
-        effects: { paciencia: 8, hambre: 6, hallacas: 5 }
+        effects: { paciencia: 8, caos: 6, hallacas: 5 }
       }
     ]
   },
@@ -456,7 +455,7 @@ const scenarios = [
         id: "trabajar_con_cuidado",
         text: "Trabajar con cuidado",
         consequence: "Avanzan lento y con miedo a que todo se desarme.",
-        effects: { hallacas: 5, paciencia: -6, hambre: 10 }
+        effects: { hallacas: 5, paciencia: -6, caos: 10 }
       },
       {
         id: "rehacer_masa",
@@ -481,7 +480,7 @@ const scenarios = [
         id: "seguir_asi",
         text: "Seguir así",
         consequence: "La producción vuela, pero ya todos saben que algo pasó.",
-        effects: { hallacas: 11, paciencia: -12, hambre: 6 }
+        effects: { hallacas: 11, paciencia: -12, caos: 6 }
       },
       {
         id: "balancear_con_masa",
@@ -506,7 +505,7 @@ const scenarios = [
         id: "comprar_onoto",
         text: "Comprar onoto",
         consequence: "La masa queda bonita, pero se pierden tiempo y recursos.",
-        effects: { ingredientes: -8, hambre: 8, hallacas: 6 }
+        effects: { ingredientes: -8, caos: 8, hallacas: 6 }
       },
       {
         id: "seguir_palidas",
@@ -517,27 +516,27 @@ const scenarios = [
     ]
   },
   {
-    id: "primo_con_hambre",
-    title: "Llegó un primo con hambre",
+    id: "primo_con_antojo",
+    title: "Llegó un primo con antojo",
     description: "Un primo aparece diciendo que solo venía a saludar. Nadie le cree.",
     choices: [
       {
         id: "darle_un_plato",
         text: "Darle un plato",
         consequence: "El primo se calma y ayuda, pero se va comida.",
-        effects: { hambre: -10, ingredientes: -12, hallacas: 7 }
+        effects: { caos: -10, ingredientes: -12, hallacas: 7 }
       },
       {
         id: "ponerlo_a_amasar",
         text: "Ponerlo a amasar",
         consequence: "Trabaja bastante, aunque se queja cada cinco minutos.",
-        effects: { hallacas: 10, paciencia: -8, hambre: 6 }
+        effects: { hallacas: 10, paciencia: -8, caos: 6 }
       },
       {
         id: "decirle_que_espere",
         text: "Que espere",
         consequence: "No gastan comida, pero el primo aumenta la presión visual.",
-        effects: { ingredientes: 4, hambre: 12, caos: 6 }
+        effects: { ingredientes: 4, caos: 18 }
       }
     ]
   },
@@ -550,7 +549,7 @@ const scenarios = [
         id: "limpiar_mesa",
         text: "Limpiar mesa",
         consequence: "La cocina respira, pero todos sienten que retrocedieron.",
-        effects: { caos: -16, hambre: 8, hallacas: 3 }
+        effects: { caos: -8, hallacas: 3 }
       },
       {
         id: "seguir_en_el_desorden",
@@ -575,13 +574,13 @@ const scenarios = [
         id: "repararla",
         text: "Repararla",
         consequence: "La silla vuelve a la vida, pero se pierden herramientas y tiempo.",
-        effects: { ingredientes: -6, hambre: 8, hallacas: 4 }
+        effects: { ingredientes: -6, caos: 8, hallacas: 4 }
       },
       {
         id: "trabajar_de_pie",
         text: "Trabajar de pie",
         consequence: "Siguen produciendo, pero el cansancio se nota.",
-        effects: { hallacas: 9, paciencia: -8, hambre: 6 }
+        effects: { hallacas: 9, paciencia: -8, caos: 6 }
       },
       {
         id: "turnar_asientos",
@@ -600,7 +599,7 @@ const scenarios = [
         id: "lavarla_tres_veces",
         text: "Lavarla tres veces",
         consequence: "La olla queda confiable, pero la espera desespera.",
-        effects: { caos: -8, hambre: 12, hallacas: 5 }
+        effects: { caos: 4, hallacas: 5 }
       },
       {
         id: "usar_sin_preguntar",
@@ -612,7 +611,7 @@ const scenarios = [
         id: "devolverla",
         text: "Devolverla",
         consequence: "Evitan el misterio, pero vuelven al problema de espacio.",
-        effects: { caos: -6, hallacas: 3, hambre: 10 }
+        effects: { caos: 4, hallacas: 3 }
       }
     ]
   },
@@ -656,7 +655,7 @@ const scenarios = [
         id: "ponerlos_a_contar",
         text: "Ponerlos a contar",
         consequence: "Cuentan hojas y pabilo, aunque alguien debe revisar todo.",
-        effects: { hallacas: 6, caos: -4, hambre: 6 }
+        effects: { hallacas: 6, caos: 2 }
       },
       {
         id: "sacarlos_de_cocina",
@@ -681,7 +680,7 @@ const scenarios = [
         id: "pedir_clase_rapida",
         text: "Pedir clase rápida",
         consequence: "Aprenden a hacerlo mejor, aunque la ronda se vuelve lenta.",
-        effects: { hallacas: 5, paciencia: 8, hambre: 8 }
+        effects: { hallacas: 5, paciencia: 8, caos: 8 }
       },
       {
         id: "decir_que_si",
@@ -706,7 +705,7 @@ const scenarios = [
         id: "recortar_pedazos",
         text: "Recortar pedazos",
         consequence: "Aprovechan más, pero el trabajo se vuelve minucioso.",
-        effects: { hallacas: 6, paciencia: -8, hambre: 8 }
+        effects: { hallacas: 6, paciencia: -8, caos: 8 }
       },
       {
         id: "hacer_tamano_mini",
@@ -731,7 +730,7 @@ const scenarios = [
         id: "usar_otra_hornilla",
         text: "Usar otra hornilla",
         consequence: "La cocina se reorganiza y se pierde algo de ritmo.",
-        effects: { hallacas: 5, caos: -6, hambre: 8 }
+        effects: { hallacas: 5, caos: 2 }
       },
       {
         id: "llamar_al_vecino",
@@ -775,7 +774,7 @@ const scenarios = [
         id: "hacer_mas",
         text: "Hacer más",
         consequence: "La meta se acerca bastante, pero la noche cobra factura.",
-        effects: { hallacas: 14, hambre: 12, paciencia: -10 }
+        effects: { hallacas: 14, caos: 12, paciencia: -10 }
       },
       {
         id: "terminar_rapido",
@@ -787,7 +786,7 @@ const scenarios = [
         id: "pausa_de_orden",
         text: "Pausa de orden",
         consequence: "Respiran y limpian, pero la producción avanza poco.",
-        effects: { hallacas: 4, paciencia: 10, hambre: 8 }
+        effects: { hallacas: 4, paciencia: 10, caos: 8 }
       }
     ]
   },
@@ -837,7 +836,7 @@ const scenarios = [
         id: "asignar_supervisor",
         text: "Asignar supervisor",
         consequence: "La mesa se ordena, aunque una persona deja de producir.",
-        effects: { hallacas: 6, caos: -12, hambre: 8 }
+        effects: { hallacas: 6, caos: -4 }
       }
     ]
   },
@@ -855,8 +854,8 @@ const scenarios = [
       {
         id: "cerrar_con_calma",
         text: "Cerrar con calma",
-        consequence: "La tanda sale bonita, aunque el hambre no perdona.",
-        effects: { hallacas: 10, hambre: 12, caos: -6 }
+        consequence: "La tanda sale bonita, aunque la presión no perdona.",
+        effects: { hallacas: 10, caos: 6 }
       },
       {
         id: "repartir_ultimas_tareas",
@@ -912,7 +911,7 @@ const scenarios = [
         id: "armar_cadena",
         text: "Armar cadena",
         consequence: "Las hojas fluyen rápido, pero todos se atraviesan.",
-        effects: { hallacas: 10, caos: 8, hambre: 6 }
+        effects: { hallacas: 10, caos: 14 }
       }
     ]
   },
@@ -925,7 +924,7 @@ const scenarios = [
         id: "buscar_bombona",
         text: "Buscar bombona",
         consequence: "Resuelven la cocción, pero se va energía y tiempo.",
-        effects: { hallacas: 7, hambre: 12, paciencia: -8 }
+        effects: { hallacas: 7, caos: 12, paciencia: -8 }
       },
       {
         id: "cocinar_en_casa_vecina",
@@ -956,7 +955,7 @@ const scenarios = [
         id: "hacer_mas_guiso",
         text: "Más guiso",
         consequence: "La tanda mejora, pero los ingredientes sufren.",
-        effects: { ingredientes: -18, hallacas: 8, hambre: 6 }
+        effects: { ingredientes: -18, hallacas: 8, caos: 6 }
       },
       {
         id: "guardar_masa",
@@ -981,7 +980,7 @@ const scenarios = [
         id: "agradecer_e_ignorar",
         text: "Agradecer e ignorar",
         consequence: "La mesa sigue, pero la tensión queda flotando.",
-        effects: { hallacas: 9, paciencia: -10, hambre: 4 }
+        effects: { hallacas: 9, paciencia: -10, caos: 4 }
       },
       {
         id: "pedirle_musica",
@@ -1012,20 +1011,20 @@ const scenarios = [
         id: "reforzar_amarres",
         text: "Reforzar amarres",
         consequence: "Salen más firmes, pero usan más pabilo y tiempo.",
-        effects: { hallacas: 8, ingredientes: -10, hambre: 6 }
+        effects: { hallacas: 8, ingredientes: -10, caos: 6 }
       }
     ]
   },
   {
-    id: "todos_tienen_hambre",
-    title: "Todos tienen hambre",
+    id: "todos_estan_desesperados",
+    title: "Todos están desesperados",
     description: "Ya nadie habla de hallacas. Hablan de comer cualquier cosa.",
     choices: [
       {
         id: "merienda_rapida",
         text: "Merienda rápida",
-        consequence: "El hambre baja, pero se van ingredientes de emergencia.",
-        effects: { hambre: -18, ingredientes: -12, hallacas: 4 }
+        consequence: "La tensión baja, pero se van ingredientes de emergencia.",
+        effects: { caos: -18, ingredientes: -12, hallacas: 4 }
       },
       {
         id: "prometer_primeras",
@@ -1050,16 +1049,31 @@ const billActions = {
     message: (name) => `${name} usó el billete de $100 para calmar a la policía. Caos -40.`
   },
   pedir_pizza: {
-    label: "pedir pizza",
-    effects: { hambre: -30 },
-    message: (name) => `${name} usó el billete de $100 para pedir pizza. Hambre -30.`
+    label: "pedir pizza para distraer a todos",
+    effects: { caos: -30, paciencia: 8 },
+    message: (name) => `${name} usó el billete de $100 para pedir pizza y distraer a todos. Caos -30, Paciencia +8.`
   },
   comprar_ingredientes: {
     label: "comprar más ingredientes",
-    effects: { ingredientes: 20 },
-    message: (name) => `${name} usó el billete de $100 para comprar más ingredientes. Ingredientes +20.`
+    effects: { ingredientes: 25 },
+    message: (name) => `${name} usó el billete de $100 para comprar más ingredientes. Ingredientes +25.`
   }
 };
+
+const surpriseEvents = [
+  { title: "Se fue la luz", text: "La cocina queda a oscuras y alguien prende la linterna del celular como si fuera quirófano.", effects: { caos: 12, paciencia: -6 } },
+  { title: "La abuela puso orden", text: "La abuela entró seria, miró a todo el mundo y de repente la casa funcionó mejor.", effects: { caos: -10, paciencia: 8 } },
+  { title: "Llegó otro primo con antojo", text: "Apareció un primo que nadie invitó, preguntando si ya estaban listas.", effects: { caos: 10, ingredientes: -5 } },
+  { title: "Encontraron más hojas", text: "Alguien consiguió un paquete de hojas escondido detrás de unas bolsas.", effects: { ingredientes: 10, paciencia: 3 } },
+  { title: "El perro hizo una de las suyas", text: "El perro apareció con cara de inocente y masa en el hocico.", effects: { ingredientes: -8, caos: 10 } },
+  { title: "Pusieron gaitas", text: "Suena una gaita clásica y por dos minutos todo el mundo recuerda que esto también es bonito.", effects: { paciencia: 8, caos: -4 } },
+  { title: "El grupo de WhatsApp explotó", text: "Tres personas que no están ayudando empiezan a opinar por el grupo familiar.", effects: { paciencia: -8, caos: 6 } },
+  { title: "Apareció una olla extra", text: "Nadie sabe de quién es, pero sirve. La producción respira.", effects: { hallacas: 6, caos: -4 } },
+  { title: "Se rompió una silla", text: "Alguien se sentó con demasiada confianza. La silla no sobrevivió.", effects: { caos: 8, paciencia: -5 } },
+  { title: "La tía trajo refuerzos", text: "Llegó una tía con energía de mando y manos rápidas.", effects: { hallacas: 8, paciencia: -3 } },
+  { title: "Se salvó el guiso", text: "Parecía perdido, pero alguien lo movió justo a tiempo.", effects: { ingredientes: 6, caos: -5 } },
+  { title: "Discusión por las pasas", text: "Alguien preguntó si las hallacas llevan pasas. La paz duró exactamente cuatro segundos.", effects: { paciencia: -10, caos: 8 } }
+];
 
 const rooms = new Map();
 
@@ -1250,7 +1264,7 @@ function createInitialGameState() {
     votes: {},
     result: null,
     endedReason: null,
-    specialBillRound: randomInt(3, 8),
+    specialBillRound: 7,
     billScenarioShown: false,
     hasBill: false,
     billUsed: false,
@@ -1305,6 +1319,7 @@ function resolveVote(room) {
   }
 
   applyEffects(room.game.stats, ROUND_PRESSURE);
+  const surprise = maybeApplySurpriseEvent(room.game);
   clampStats(room.game.stats);
 
   room.game.result = {
@@ -1313,6 +1328,7 @@ function resolveVote(room) {
     consequence,
     effects: choiceEffects,
     pressure: { ...ROUND_PRESSURE },
+    surprise,
     voteCounts: counts,
     tieBroken: tiedChoiceIds.length > 1,
     billWon,
@@ -1320,7 +1336,10 @@ function resolveVote(room) {
   };
 
   addLog(room.game, `La familia decidió: ${winningChoice.text}.`);
-  addLog(room.game, "Se aplicó la presión de la ronda: Hambre +2, Caos +1.");
+  addLog(room.game, "Se aplicó la presión de la ronda: Caos +6, Paciencia -2.");
+  if (surprise) {
+    addLog(room.game, `Evento sorpresa: ${surprise.title}.`);
+  }
 
   const endedReason = getEndedReason(room.game.stats);
   if (endedReason) {
@@ -1343,11 +1362,24 @@ function clampStats(stats) {
   });
 }
 
+function maybeApplySurpriseEvent(game) {
+  if (game.round < 2 || Math.random() >= 0.25) {
+    return null;
+  }
+
+  const event = surpriseEvents[Math.floor(Math.random() * surpriseEvents.length)];
+  applyEffects(game.stats, event.effects);
+  return {
+    title: event.title,
+    text: event.text,
+    effects: { ...event.effects }
+  };
+}
+
 function getEndedReason(stats) {
   if (stats.hallacas >= WIN_HALLACAS) return "success";
   if (stats.ingredientes <= 0) return "ingredientes";
   if (stats.paciencia <= 0) return "paciencia";
-  if (stats.hambre >= 100) return "hambre";
   if (stats.caos >= 100) return "caos";
   return null;
 }
